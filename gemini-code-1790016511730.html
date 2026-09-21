@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Living Epistles Ministries — Studio Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
+  :root {
+    --plum: #2A1040;
+    --gold: #C9A96E;
+    --violet: #7B5EA7;
+    --violet-soft: #9E7AB5;
+    --rose: #D4A0B5;
+    --parchment: #FAF5EE;
+    --cream: #E8D5B7;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #1e1326;
+    color: var(--parchment);
+    font-family: 'Lato', sans-serif;
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* SIDEBAR CONTROLS */
+  .controls-sidebar {
+    width: 380px;
+    background: #231530;
+    border-right: 1px solid rgba(201, 169, 110, 0.3);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .sidebar-header {
+    border-bottom: 1px solid var(--gold);
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+  }
+
+  .sidebar-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  .sidebar-header p {
+    font-size: 11px;
+    color: var(--violet-soft);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--rose);
+    font-weight: 700;
+  }
+
+  input, textarea, select {
+    background: #180d21;
+    border: 1px solid rgba(201, 169, 110, 0.4);
+    color: var(--parchment);
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 13px;
+  }
+
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+  }
+
+  .export-btn {
+    background: var(--gold);
+    color: var(--plum);
+    border: none;
+    padding: 14px;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .export-btn:hover {
+    background: #d8b87e;
+  }
+
+  /* WORKSPACE PREVIEW */
+  .preview-workspace {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #120919;
+    padding: 40px;
+    overflow: auto;
+  }
+
+  /* CANVAS ELEMENT (STYLING LAYOUTS) */
+  #graphic-canvas {
+    width: 540px;
+    height: 540px; /* Square by default */
+    background: var(--plum);
+    position: relative;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+  }
+
+  /* CANVAS INTERNAL STYLES */
+  .canvas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(201, 169, 110, 0.4);
+    padding-bottom: 15px;
+  }
+
+  .brand-sub {
+    font-family: 'Lato', sans-serif;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--rose);
+    text-transform: uppercase;
+  }
+
+  .canvas-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .scripture-ref {
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+
+  .scripture-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 26px;
+    line-height: 1.4;
+    color: var(--parchment);
+    margin-bottom: 20px;
+    white-space: pre-wrap;
+  }
+
+  .declaration-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--cream);
+    white-space: pre-wrap;
+  }
+
+  .canvas-footer {
+    border-top: 1px solid rgba(201, 169, 110, 0.4);
+    padding-top: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: var(--rose);
+    letter-spacing: 1.5px;
+  }
+
+  /* LAYOUT VARIATIONS */
+  .theme-story { width: 405px !important; height: 720px !important; } /* 9:16 Aspect */
+  .theme-parchment { background: var(--parchment) !important; color: var(--plum) !important; }
+  .theme-parchment .scripture-text { color: var(--plum) !important; }
+  .theme-parchment .declaration-text { color: var(--violet) !important; }
+  .theme-parchment .brand-sub, .theme-parchment .canvas-footer { color: var(--violet-soft) !important; }
+</style>
+</head>
+<body>
+
+<div class="controls-sidebar">
+  <div class="sidebar-header">
+    <h2>Living Epistles Studio</h2>
+    <p>Graphic Generator v1.0</p>
+  </div>
+
+  <div class="form-group">
+    <label>Output Format &amp; Theme</label>
+    <select id="layoutSelect" onchange="updateLayout()">
+      <optgroup label="Feed Posts (1080x1080)">
+        <option value="post-plum">Post 1: Deep Plum Centered</option>
+        <option value="post-parchment">Post 2: Ivory Parchment Light</option>
+      </optgroup>
+      <optgroup label="Story Posts (1080x1920)">
+        <option value="story-plum">Story 1: Deep Plum Centered</option>
+        <option value="story-parchment">Story 2: Ivory Parchment Light</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Scripture Reference</label>
+    <input type="text" id="refInput" value="PROVERBS 31:25 · NIV" oninput="renderCanvas()"/>
+  </div>
+
+  <div class="form-group">
+    <label>Scripture Text (Preserve Line Breaks)</label>
+    <textarea id="scriptureInput" oninput="renderCanvas()">"She is clothed
+with strength and dignity;
+she can laugh at the days to come."</textarea>
+  </div>
+
+  <div class="form-group">
+    <label>Declaration / Reflection</label>
+    <textarea id="declarationInput" oninput="renderCanvas()">"I am clothed in strength. I am a living epistle."</textarea>
+  </div>
+
+  <button class="export-btn" onclick="exportPNG()">Export High-Res PNG</button>
+</div>
+
+<div class="preview-workspace">
+  <div id="graphic-canvas">
+    <div class="canvas-header">
+      <span class="brand-sub">Living Epistles</span>
+      <span class="brand-sub">✦</span>
+    </div>
+    
+    <div class="canvas-body">
+      <div class="scripture-ref" id="canvasRef">PROVERBS 31:25 · NIV</div>
+      <div class="scripture-text" id="canvasScripture">"She is clothed
+with strength and dignity;
+she can laugh at the days to come."</div>
+      <div class="declaration-text" id="canvasDeclaration">"I am clothed in strength. I am a living epistle."</div>
+    </div>
+
+    <div class="canvas-footer">
+      <span>LIVING-EPISTLES.ORG</span>
+      <span>Keep writing. Keep rising. ✦</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function renderCanvas() {
+    document.getElementById('canvasRef').innerText = document.getElementById('refInput').value;
+    document.getElementById('canvasScripture').innerText = document.getElementById('scriptureInput').value;
+    document.getElementById('canvasDeclaration').innerText = document.getElementById('declarationInput').value;
+  }
+
+  function updateLayout() {
+    const canvas = document.getElementById('graphic-canvas');
+    const layout = document.getElementById('layoutSelect').value;
+
+    canvas.className = ''; // Reset classes
+
+    if (layout.includes('story')) {
+      canvas.classList.add('theme-story');
+    }
+    if (layout.includes('parchment')) {
+      canvas.classList.add('theme-parchment');
+    }
+  }
+
+  function exportPNG() {
+    const canvasElement = document.getElementById('graphic-canvas');
+    const ref = document.getElementById('refInput').value.replace(/[^a-zA-Z0-9]/g, '-');
+    const layout = document.getElementById('layoutSelect').value;
+
+    html2canvas(canvasElement, {
+      scale: 3, // High-res output
+      useCORS: true
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = `${layout}_${ref}_${Date.now()}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+</script>
+
+</body>
+</html>
