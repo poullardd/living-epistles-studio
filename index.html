@@ -1,417 +1,598 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Living Epistles Ministries — Studio Generator (7 Layouts)</title>
+<title>Living Epistles Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lato:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+/* ── Token system ────────────────────────────────────────────────────── */
+:root {
+  --plum:    #2A1040;
+  --gold:    #C9A96E;
+  --violet:  #7B5EA7;
+  --vsoft:   #9E7AB5;
+  --rose:    #D4A0B5;
+  --parch:   #FAF5EE;
+  --cream:   #E8D5B7;
 
-  :root {
-    --plum: #2A1040;
-    --gold: #C9A96E;
-    --violet: #7B5EA7;
-    --violet-soft: #9E7AB5;
-    --rose: #D4A0B5;
-    --parchment: #FAF5EE;
-    --cream: #E8D5B7;
+  /* App chrome */
+  --app-bg:    #120919;
+  --sidebar-bg:#1e1326;
+  --panel-bg:  #231530;
+  --border:    rgba(201,169,110,0.25);
+  --input-bg:  #160c20;
+
+  --fg:        var(--parch);
+  --fg-dim:    var(--vsoft);
+  --label:     var(--rose);
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --app-bg:   #ede8e0;
+    --sidebar-bg:#f5f0e8;
+    --panel-bg: #fff;
+    --border:   rgba(42,16,64,0.15);
+    --input-bg: #f0ebe3;
+    --fg:       var(--plum);
+    --fg-dim:   var(--violet);
+    --label:    var(--violet);
+    color-scheme: light;
   }
+}
+:root[data-theme="light"] {
+  --app-bg:   #ede8e0;
+  --sidebar-bg:#f5f0e8;
+  --panel-bg: #fff;
+  --border:   rgba(42,16,64,0.15);
+  --input-bg: #f0ebe3;
+  --fg:       var(--plum);
+  --fg-dim:   var(--violet);
+  --label:    var(--violet);
+  color-scheme: light;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── Reset ───────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: #1e1326;
-    color: var(--parchment);
-    font-family: 'Lato', sans-serif;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-  }
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--app-bg);
+  color: var(--fg);
+  font-family: 'Lato', system-ui, sans-serif;
+}
 
-  /* SIDEBAR CONTROLS */
-  .controls-sidebar {
-    width: 380px;
-    background: #231530;
-    border-right: 1px solid rgba(201, 169, 110, 0.3);
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    overflow-y: auto;
-  }
+/* ── App layout ──────────────────────────────────────────────────────── */
+.app {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
 
-  .sidebar-header {
-    border-bottom: 1px solid var(--gold);
-    padding-bottom: 12px;
-    margin-bottom: 8px;
-  }
+/* ── Sidebar ─────────────────────────────────────────────────────────── */
+.sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 24px 20px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  gap: 18px;
+}
 
-  .sidebar-header h2 {
-    font-family: 'Cormorant Garamond', serif;
-    color: var(--gold);
-    font-size: 22px;
-    font-weight: 600;
-  }
+.sidebar-head {
+  border-bottom: 1px solid var(--gold);
+  padding-bottom: 14px;
+}
+.sidebar-head h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px;
+  font-weight: 600;
+  color: var(--gold);
+  letter-spacing: 0.5px;
+}
+.sidebar-head p {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  margin-top: 4px;
+}
 
-  .sidebar-header p {
-    font-size: 11px;
-    color: var(--violet-soft);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--label);
+}
+.field select,
+.field input,
+.field textarea {
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  padding: 9px 11px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color .15s;
+}
+.field select:focus,
+.field input:focus,
+.field textarea:focus { outline: none; border-color: var(--gold); }
+.field textarea { resize: vertical; min-height: 76px; line-height: 1.5; }
+.field select option { background: #231530; color: var(--parch); }
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+.btn-export {
+  background: var(--gold);
+  color: var(--plum);
+  border: none;
+  padding: 13px 16px;
+  font-family: 'Lato', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .2s, transform .1s;
+  margin-top: 4px;
+}
+.btn-export:hover { background: #d9bb80; }
+.btn-export:active { transform: scale(.98); }
+.btn-export:disabled { opacity: .5; cursor: not-allowed; }
 
-  label {
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: var(--rose);
-    font-weight: 700;
-  }
+.export-note {
+  font-size: 10px;
+  color: var(--fg-dim);
+  line-height: 1.5;
+  letter-spacing: .3px;
+}
 
-  input, textarea, select {
-    background: #180d21;
-    border: 1px solid rgba(201, 169, 110, 0.4);
-    color: var(--parchment);
-    padding: 10px 12px;
-    border-radius: 4px;
-    font-family: inherit;
-    font-size: 13px;
-  }
+/* ── Preview workspace ───────────────────────────────────────────────── */
+.workspace {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--app-bg);
+  padding: 32px 24px;
+  overflow: auto;
+  gap: 16px;
+}
 
-  input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: var(--gold);
-  }
+.preview-label {
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  opacity: .7;
+}
 
-  textarea {
-    resize: vertical;
-    min-height: 80px;
-    line-height: 1.5;
-  }
+/* ── The offscreen render surface (exact export dimensions, scaled for preview) */
+.canvas-wrap {
+  position: relative;
+  transform-origin: top center;
+}
 
-  .export-btn {
-    background: var(--gold);
-    color: var(--plum);
-    border: none;
-    padding: 14px;
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 12px;
-    transition: all 0.2s ease;
-  }
+/* ID = the real render div html2canvas captures */
+#render-surface {
+  /* Dimensions set by JS based on layout */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', serif;
+}
 
-  .export-btn:hover {
-    background: #d8b87e;
-  }
+/* ── Canvas internals ────────────────────────────────────────────────── */
+.cs-hdr, .cs-ftr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Lato', sans-serif;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.cs-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cs-ref {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+.cs-scripture { white-space: pre-wrap; font-style: italic; font-weight: 300; line-height: 1.35; }
+.cs-decl      { white-space: pre-wrap; font-style: italic; font-weight: 300; line-height: 1.5; }
 
-  /* WORKSPACE PREVIEW */
-  .preview-workspace {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #120919;
-    padding: 40px;
-    overflow: auto;
-  }
-
-  /* CANVAS BASE */
-  #graphic-canvas {
-    width: 540px;
-    height: 540px; /* Default Feed Square 1:1 */
-    background: var(--plum);
-    position: relative;
-    padding: 45px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    transition: all 0.3s ease;
-    overflow: hidden;
-  }
-
-  /* CANVAS INTERNAL STYLES */
-  .canvas-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(201, 169, 110, 0.4);
-    padding-bottom: 12px;
-  }
-
-  .brand-sub {
-    font-family: 'Lato', sans-serif;
-    font-size: 10px;
-    letter-spacing: 3px;
-    color: var(--rose);
-    text-transform: uppercase;
-  }
-
-  .canvas-body {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    padding: 15px 0;
-  }
-
-  .scripture-ref {
-    font-family: 'Lato', sans-serif;
-    font-size: 11px;
-    letter-spacing: 2.5px;
-    color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-    font-weight: 700;
-  }
-
-  .scripture-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 24px;
-    line-height: 1.4;
-    color: var(--parchment);
-    margin-bottom: 16px;
-    white-space: pre-wrap;
-  }
-
-  .declaration-text {
-    font-family: 'Cormorant Garamond', serif;
-    font-size: 15px;
-    font-style: italic;
-    color: var(--cream);
-    white-space: pre-wrap;
-  }
-
-  .canvas-footer {
-    border-top: 1px solid rgba(201, 169, 110, 0.4);
-    padding-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 10px;
-    color: var(--rose);
-    letter-spacing: 1.5px;
-  }
-
-  /* -------------------------------------------------------------
-     DIMENSION RATIOS
-  ------------------------------------------------------------- */
-  .ratio-story { width: 405px !important; height: 720px !important; }
-
-  /* -------------------------------------------------------------
-     THEME 1: PLUM CENTERED (CLASSIC DEEP PLUM)
-  ------------------------------------------------------------- */
-  .theme-plum {
-    background: var(--plum) !important;
-    color: var(--parchment) !important;
-  }
-
-  /* -------------------------------------------------------------
-     THEME 2: PARCHMENT LIGHT (ELEGANT IVORY & VIOLET)
-  ------------------------------------------------------------- */
-  .theme-parchment {
-    background: var(--parchment) !important;
-    color: var(--plum) !important;
-  }
-  .theme-parchment .scripture-text { color: var(--plum) !important; }
-  .theme-parchment .declaration-text { color: var(--violet) !important; }
-  .theme-parchment .brand-sub, 
-  .theme-parchment .canvas-footer { color: var(--violet-soft) !important; }
-
-  /* -------------------------------------------------------------
-     THEME 3: ROYAL VIOLET (SOFT VIOLET ACCENT)
-  ------------------------------------------------------------- */
-  .theme-violet {
-    background: #3A1958 !important;
-    color: var(--parchment) !important;
-  }
-  .theme-violet .scripture-ref { color: var(--cream) !important; }
-  .theme-violet .declaration-text { color: var(--rose) !important; }
-
-  /* -------------------------------------------------------------
-     THEME 4: GOLD BORDERED (GOLD ACCENT FRAME)
-  ------------------------------------------------------------- */
-  .theme-gold-bordered {
-    background: var(--plum) !important;
-    border: 3px solid var(--gold) !important;
-  }
-  .theme-gold-bordered .canvas-header { border-bottom-color: var(--gold) !important; }
-  .theme-gold-bordered .canvas-footer { border-top-color: var(--gold) !important; }
-
-  /* -------------------------------------------------------------
-     THEME 5: MODERN MINIMALIST (LEFT ALIGNED TEXT)
-  ------------------------------------------------------------- */
-  .theme-minimalist .canvas-body {
-    text-align: left !important;
-  }
-  .theme-minimalist .scripture-text {
-    border-left: 3px solid var(--gold);
-    padding-left: 14px;
-  }
-
-  /* -------------------------------------------------------------
-     THEME 6: DEEP NOIR (HIGH CONTRAST DARK PLUM)
-  ------------------------------------------------------------- */
-  .theme-noir {
-    background: #180926 !important;
-    color: var(--cream) !important;
-  }
-  .theme-noir .scripture-text { color: #FFFFFF !important; }
-  .theme-noir .declaration-text { color: var(--gold) !important; }
-
-  /* -------------------------------------------------------------
-     THEME 7: PARCHMENT BORDERED (LIGHT FRAME)
-  ------------------------------------------------------------- */
-  .theme-parchment-bordered {
-    background: var(--parchment) !important;
-    color: var(--plum) !important;
-    border: 3px solid var(--violet) !important;
-  }
-  .theme-parchment-bordered .scripture-text { color: var(--plum) !important; }
-  .theme-parchment-bordered .declaration-text { color: var(--violet) !important; }
-  .theme-parchment-bordered .brand-sub, 
-  .theme-parchment-bordered .canvas-footer { color: var(--violet-soft) !important; }
+/* ── THEME DEFINITIONS ───────────────────────────────────────────────── */
+/* Applied by JS: sets bg, text colors, border colors, special treatments */
 </style>
-</head>
-<body>
 
-<div class="controls-sidebar">
-  <div class="sidebar-header">
-    <h2>Living Epistles Studio</h2>
-    <p>Graphic Generator — Full 7 Themes</p>
-  </div>
+<div class="app">
 
-  <div class="form-group">
-    <label>Output Format & Layout Theme</label>
-    <select id="layoutSelect" onchange="updateLayout()">
-      <optgroup label="Feed Posts (1080x1080 Square)">
-        <option value="post-1-plum">Post 1: Deep Plum Centered</option>
-        <option value="post-2-parchment">Post 2: Ivory Parchment Light</option>
-        <option value="post-3-violet">Post 3: Royal Violet Accent</option>
-        <option value="post-4-goldborder">Post 4: Gold Bordered Frame</option>
-        <option value="post-5-minimalist">Post 5: Modern Left-Aligned</option>
-        <option value="post-6-noir">Post 6: Deep Dark Noir</option>
-        <option value="post-7-parchmentborder">Post 7: Parchment Violet Frame</option>
-      </optgroup>
-      <optgroup label="Story Posts (1080x1920 Vertical)">
-        <option value="story-1-plum">Story 1: Deep Plum Centered</option>
-        <option value="story-2-parchment">Story 2: Ivory Parchment Light</option>
-        <option value="story-3-violet">Story 3: Royal Violet Accent</option>
-        <option value="story-4-goldborder">Story 4: Gold Bordered Frame</option>
-        <option value="story-5-minimalist">Story 5: Modern Left-Aligned</option>
-        <option value="story-6-noir">Story 6: Deep Dark Noir</option>
-        <option value="story-7-parchmentborder">Story 7: Parchment Violet Frame</option>
-      </optgroup>
-    </select>
-  </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <h1>Living Epistles Studio</h1>
+      <p>Graphic Generator — 7 Themes</p>
+    </div>
 
-  <div class="form-group">
-    <label>Scripture Reference</label>
-    <input type="text" id="refInput" value="PROVERBS 31:25 · NIV" oninput="renderCanvas()"/>
-  </div>
+    <div class="field">
+      <label>Format &amp; Theme</label>
+      <select id="layoutSelect" onchange="applyLayout()">
+        <optgroup label="Feed Posts (1080 × 1080)">
+          <option value="post|plum">Post 1 — Deep Plum</option>
+          <option value="post|parchment">Post 2 — Ivory Parchment</option>
+          <option value="post|violet">Post 3 — Royal Violet</option>
+          <option value="post|gold">Post 4 — Gold Bordered</option>
+          <option value="post|minimalist">Post 5 — Left-Aligned Minimalist</option>
+          <option value="post|noir">Post 6 — Deep Noir</option>
+          <option value="post|parchborder">Post 7 — Parchment Violet Frame</option>
+        </optgroup>
+        <optgroup label="Story Posts (1080 × 1920)">
+          <option value="story|plum">Story 1 — Deep Plum</option>
+          <option value="story|parchment">Story 2 — Ivory Parchment</option>
+          <option value="story|violet">Story 3 — Royal Violet</option>
+          <option value="story|gold">Story 4 — Gold Bordered</option>
+          <option value="story|minimalist">Story 5 — Left-Aligned Minimalist</option>
+          <option value="story|noir">Story 6 — Deep Noir</option>
+          <option value="story|parchborder">Story 7 — Parchment Violet Frame</option>
+        </optgroup>
+      </select>
+    </div>
 
-  <div class="form-group">
-    <label>Scripture Text (Preserve Line Breaks)</label>
-    <textarea id="scriptureInput" oninput="renderCanvas()">"She is clothed
+    <div class="field">
+      <label>Scripture Reference</label>
+      <input type="text" id="refInput" value="PROVERBS 31:25 · NIV" oninput="renderCanvas()">
+    </div>
+
+    <div class="field">
+      <label>Scripture Text</label>
+      <textarea id="scriptureInput" oninput="renderCanvas()" rows="5">"She is clothed
 with strength and dignity;
-she can laugh at the days to come."</textarea>
-  </div>
-
-  <div class="form-group">
-    <label>Declaration / Reflection</label>
-    <textarea id="declarationInput" oninput="renderCanvas()">"I am clothed in strength. I am a living epistle."</textarea>
-  </div>
-
-  <button class="export-btn" onclick="exportPNG()">Export High-Res PNG</button>
-</div>
-
-<div class="preview-workspace">
-  <div id="graphic-canvas" class="theme-plum">
-    <div class="canvas-header">
-      <span class="brand-sub">Living Epistles</span>
-      <span class="brand-sub">✦</span>
+she can laugh at
+the days to come."</textarea>
     </div>
-    
-    <div class="canvas-body">
-      <div class="scripture-ref" id="canvasRef">PROVERBS 31:25 · NIV</div>
-      <div class="scripture-text" id="canvasScripture">"She is clothed
+
+    <div class="field">
+      <label>Declaration / Reflection</label>
+      <textarea id="declarationInput" oninput="renderCanvas()" rows="3">"I am clothed in strength.
+I am a living epistle."</textarea>
+    </div>
+
+    <button class="btn-export" id="exportBtn" onclick="exportPNG()">⬇ Export High-Res PNG</button>
+    <p class="export-note">Exports at true 1080 × 1080 (feed) or 1080 × 1920 (story). Fonts load from Google Fonts — keep your internet connection active when exporting.</p>
+  </aside>
+
+  <!-- WORKSPACE -->
+  <main class="workspace" id="workspace">
+    <span class="preview-label" id="previewLabel">Feed Post — 1080 × 1080</span>
+    <div class="canvas-wrap" id="canvasWrap">
+      <div id="render-surface">
+        <div class="cs-hdr" id="csHdr">
+          <span id="csBrand">Living Epistles</span>
+          <span>✦</span>
+        </div>
+        <div class="cs-body" id="csBody">
+          <div class="cs-ref" id="csRef">PROVERBS 31:25 · NIV</div>
+          <div class="cs-scripture" id="csScripture">"She is clothed
 with strength and dignity;
-she can laugh at the days to come."</div>
-      <div class="declaration-text" id="canvasDeclaration">"I am clothed in strength. I am a living epistle."</div>
+she can laugh at
+the days to come."</div>
+          <div class="cs-decl" id="csDecl">"I am clothed in strength.
+I am a living epistle."</div>
+        </div>
+        <div class="cs-ftr" id="csFtr">
+          <span>LIVING-EPISTLES.ORG</span>
+          <span>Keep writing. Keep rising. ✦</span>
+        </div>
+      </div>
     </div>
+  </main>
 
-    <div class="canvas-footer">
-      <span>LIVING-EPISTLES.ORG</span>
-      <span>Keep writing. Keep rising. ✦</span>
-    </div>
-  </div>
 </div>
 
 <script>
-  function renderCanvas() {
-    document.getElementById('canvasRef').innerText = document.getElementById('refInput').value;
-    document.getElementById('canvasScripture').innerText = document.getElementById('scriptureInput').value;
-    document.getElementById('canvasDeclaration').innerText = document.getElementById('declarationInput').value;
-  }
+// ── Theme map ──────────────────────────────────────────────────────────
+const THEMES = {
+  plum: {
+    bg: '#2A1040', color: '#FAF5EE',
+    borderColor: 'rgba(201,169,110,0.35)',
+    refColor: '#C9A96E',
+    scriptureColor: '#FAF5EE',
+    declColor: '#E8D5B7',
+    brandColor: '#D4A0B5',
+    footerColor: '#D4A0B5',
+    extraBox: '',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+  parchment: {
+    bg: '#FAF5EE', color: '#2A1040',
+    borderColor: 'rgba(42,16,64,0.2)',
+    refColor: '#7B5EA7',
+    scriptureColor: '#2A1040',
+    declColor: '#7B5EA7',
+    brandColor: '#9E7AB5',
+    footerColor: '#9E7AB5',
+    extraBox: '',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+  violet: {
+    bg: '#3A1958', color: '#FAF5EE',
+    borderColor: 'rgba(201,169,110,0.35)',
+    refColor: '#E8D5B7',
+    scriptureColor: '#FAF5EE',
+    declColor: '#D4A0B5',
+    brandColor: '#D4A0B5',
+    footerColor: '#D4A0B5',
+    extraBox: '',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+  gold: {
+    bg: '#2A1040', color: '#FAF5EE',
+    borderColor: '#C9A96E',
+    refColor: '#C9A96E',
+    scriptureColor: '#FAF5EE',
+    declColor: '#E8D5B7',
+    brandColor: '#D4A0B5',
+    footerColor: '#D4A0B5',
+    extraBox: 'border: 5px solid #C9A96E;',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+  minimalist: {
+    bg: '#2A1040', color: '#FAF5EE',
+    borderColor: 'rgba(201,169,110,0.35)',
+    refColor: '#C9A96E',
+    scriptureColor: '#FAF5EE',
+    declColor: '#E8D5B7',
+    brandColor: '#D4A0B5',
+    footerColor: '#D4A0B5',
+    extraBox: '',
+    bodyAlign: 'left',
+    scriptureExtraStyle: 'border-left: 4px solid #C9A96E; padding-left: 1em;',
+  },
+  noir: {
+    bg: '#180926', color: '#F0EBE3',
+    borderColor: 'rgba(201,169,110,0.25)',
+    refColor: '#9E7AB5',
+    scriptureColor: '#FFFFFF',
+    declColor: '#C9A96E',
+    brandColor: '#D4A0B5',
+    footerColor: '#D4A0B5',
+    extraBox: '',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+  parchborder: {
+    bg: '#FAF5EE', color: '#2A1040',
+    borderColor: '#7B5EA7',
+    refColor: '#7B5EA7',
+    scriptureColor: '#2A1040',
+    declColor: '#7B5EA7',
+    brandColor: '#9E7AB5',
+    footerColor: '#9E7AB5',
+    extraBox: 'border: 5px solid #7B5EA7;',
+    bodyAlign: 'center',
+    scriptureExtraStyle: '',
+  },
+};
 
-  function updateLayout() {
-    const canvas = document.getElementById('graphic-canvas');
-    const layout = document.getElementById('layoutSelect').value;
+// ── Dimension config ───────────────────────────────────────────────────
+const DIMS = {
+  post:  { w: 1080, h: 1080, pad: 72, hdrFs: 13, refFs: 13, scrFs: 52, declFs: 26, ftrFs: 11, hdrPb: 18, ftrPt: 18 },
+  story: { w: 1080, h: 1920, pad: 100, hdrFs: 15, refFs: 16, scrFs: 80, declFs: 40, ftrFs: 13, hdrPb: 22, ftrPt: 22 },
+};
 
-    // Reset base classes
-    canvas.className = '';
+let currentFormat = 'post';
+let currentTheme  = 'plum';
 
-    // Apply aspect ratio
-    if (layout.startsWith('story')) {
-      canvas.classList.add('ratio-story');
-    }
+function parseLayout() {
+  const val = document.getElementById('layoutSelect').value;
+  const [fmt, thm] = val.split('|');
+  return { fmt, thm };
+}
 
-    // Apply specific layout theme
-    if (layout.includes('plum')) {
-      canvas.classList.add('theme-plum');
-    } else if (layout.includes('parchmentborder')) {
-      canvas.classList.add('theme-parchment-bordered');
-    } else if (layout.includes('parchment')) {
-      canvas.classList.add('theme-parchment');
-    } else if (layout.includes('violet')) {
-      canvas.classList.add('theme-violet');
-    } else if (layout.includes('goldborder')) {
-      canvas.classList.add('theme-gold-bordered');
-    } else if (layout.includes('minimalist')) {
-      canvas.classList.add('theme-minimalist', 'theme-plum');
-    } else if (layout.includes('noir')) {
-      canvas.classList.add('theme-noir');
-    }
-  }
+function applyLayout() {
+  const { fmt, thm } = parseLayout();
+  currentFormat = fmt;
+  currentTheme  = thm;
+  renderCanvas();
+  scalePreview();
+  document.getElementById('previewLabel').textContent =
+    fmt === 'post' ? 'Feed Post — 1080 × 1080' : 'Story — 1080 × 1920';
+}
 
-  function exportPNG() {
-    const canvasElement = document.getElementById('graphic-canvas');
-    const ref = document.getElementById('refInput').value.replace(/[^a-zA-Z0-9]/g, '-');
-    const layout = document.getElementById('layoutSelect').value;
+function renderCanvas() {
+  const rs   = document.getElementById('render-surface');
+  const d    = DIMS[currentFormat];
+  const t    = THEMES[currentTheme];
 
-    html2canvas(canvasElement, {
-      scale: 3, // High-res output (3x canvas resolution)
-      useCORS: true
-    }).then(canvas => {
-      const link = document.createElement('a');
-      link.download = `${layout}_${ref}_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+  const ref        = document.getElementById('refInput').value;
+  const scripture  = document.getElementById('scriptureInput').value;
+  const declaration= document.getElementById('declarationInput').value;
+
+  // Dimensions
+  rs.style.width          = d.w + 'px';
+  rs.style.height         = d.h + 'px';
+  rs.style.padding        = d.pad + 'px';
+
+  // Theme base
+  rs.style.background     = t.bg;
+  rs.style.color          = t.color;
+  rs.style.cssText += '; ' + t.extraBox;
+
+  // Header
+  const hdr = document.getElementById('csHdr');
+  hdr.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom: 1px solid ${t.borderColor};
+    padding-bottom: ${d.hdrPb}px;
+    font-family:'Lato',sans-serif;
+    font-size:${d.hdrFs}px;
+    letter-spacing:3.5px;
+    text-transform:uppercase;
+    color:${t.brandColor};
+  `;
+
+  // Body
+  const body = document.getElementById('csBody');
+  body.style.cssText = `
+    flex:1; display:flex; flex-direction:column; justify-content:center;
+    text-align:${t.bodyAlign};
+    padding: ${Math.round(d.pad * 0.4)}px 0;
+    gap: ${Math.round(d.pad * 0.28)}px;
+  `;
+
+  // Ref
+  const refEl = document.getElementById('csRef');
+  refEl.textContent = ref;
+  refEl.style.cssText = `
+    font-family:'Lato',sans-serif;
+    font-size:${d.refFs}px;
+    font-weight:700;
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:${t.refColor};
+  `;
+
+  // Scripture
+  const scrEl = document.getElementById('csScripture');
+  scrEl.textContent = scripture;
+  scrEl.style.cssText = `
+    font-family:'Cormorant Garamond',serif;
+    font-size:${d.scrFs}px;
+    font-style:italic;
+    font-weight:300;
+    line-height:1.35;
+    color:${t.scriptureColor};
+    white-space:pre-wrap;
+    ${t.scriptureExtraStyle}
+  `;
+
+  // Declaration
+  const declEl = document.getElementById('csDecl');
+  declEl.textContent = declaration;
+  declEl.style.cssText = `
+    font-family:'Cormorant Garamond',serif;
+    font-size:${d.declFs}px;
+    font-style:italic;
+    font-weight:300;
+    line-height:1.5;
+    color:${t.declColor};
+    white-space:pre-wrap;
+  `;
+
+  // Footer
+  const ftr = document.getElementById('csFtr');
+  ftr.style.cssText = `
+    display:flex; justify-content:space-between; align-items:center;
+    border-top: 1px solid ${t.borderColor};
+    padding-top: ${d.ftrPt}px;
+    font-family:'Lato',sans-serif;
+    font-size:${d.ftrFs}px;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:${t.footerColor};
+  `;
+
+  // Re-apply extra box style (border) since cssText above may partially reset
+  if (t.extraBox) {
+    const parts = t.extraBox.split(';').map(s => s.trim()).filter(Boolean);
+    parts.forEach(rule => {
+      const [prop, val] = rule.split(':');
+      if (prop && val) rs.style[prop.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = val.trim();
     });
+  } else {
+    rs.style.border = 'none';
   }
-</script>
+}
 
-</body>
-</html>
+function scalePreview() {
+  const wrap = document.getElementById('canvasWrap');
+  const ws   = document.getElementById('workspace');
+  const d    = DIMS[currentFormat];
+
+  // Available space (subtract label + gap)
+  const availH = ws.clientHeight - 60;
+  const availW = ws.clientWidth  - 48;
+
+  const scaleH = availH / d.h;
+  const scaleW = availW / d.w;
+  const scale  = Math.min(scaleH, scaleW, 1); // never upscale
+
+  wrap.style.transform = `scale(${scale})`;
+  wrap.style.width  = d.w + 'px';
+  wrap.style.height = d.h + 'px';
+  // Shrink the container so workspace doesn't scroll
+  wrap.style.marginBottom = `-${Math.round(d.h * (1 - scale))}px`;
+  wrap.style.marginRight  = `-${Math.round(d.w * (1 - scale))}px`;
+}
+
+async function exportPNG() {
+  const btn = document.getElementById('exportBtn');
+  btn.disabled = true;
+  btn.textContent = 'Rendering…';
+
+  const d   = DIMS[currentFormat];
+  const ref = document.getElementById('refInput').value.replace(/[^a-zA-Z0-9]/g, '-');
+  const val = document.getElementById('layoutSelect').value.replace('|', '_');
+
+  try {
+    // Temporarily un-scale for capture
+    const wrap = document.getElementById('canvasWrap');
+    wrap.style.transform = 'scale(1)';
+    wrap.style.marginBottom = '0';
+    wrap.style.marginRight  = '0';
+
+    await document.fonts.ready;
+
+    const canvas = await html2canvas(document.getElementById('render-surface'), {
+      scale: 1, // surface is already exact pixels
+      useCORS: true,
+      logging: false,
+      width: d.w,
+      height: d.h,
+    });
+
+    // Re-apply preview scale
+    scalePreview();
+
+    const link = document.createElement('a');
+    link.download = `LEM_${val}_${ref}_${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    btn.textContent = '✓ Downloaded!';
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '⬇ Export High-Res PNG';
+    }, 2000);
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.textContent = '⬇ Export High-Res PNG';
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────────
+window.addEventListener('resize', scalePreview);
+renderCanvas();
+scalePreview();
+</script>
