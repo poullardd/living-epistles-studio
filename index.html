@@ -472,9 +472,16 @@ function renderCanvas() {
     color:${t.refColor};
   `;
 
-  // Scripture
+  // Scripture — last line rendered in gold accent
   const scrEl = document.getElementById('csScripture');
-  scrEl.textContent = scripture;
+  const lines = scripture.split('\n');
+  const lastLine = lines.pop();
+  const bodyLines = lines.join('\n');
+  const escapedBody = bodyLines.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const escapedLast = lastLine.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  scrEl.innerHTML = bodyLines
+    ? `${escapedBody}\n<span style="color:#C9A96E;font-style:italic;font-weight:400;">${escapedLast}</span>`
+    : `<span style="color:#C9A96E;font-style:italic;font-weight:400;">${escapedLast}</span>`;
   scrEl.style.cssText = `
     font-family:'Cormorant Garamond',serif;
     font-size:${d.scrFs}px;
@@ -488,7 +495,14 @@ function renderCanvas() {
 
   // Declaration
   const declEl = document.getElementById('csDecl');
-  declEl.textContent = declaration;
+  const declLines = declaration.split('\n');
+  const declLast = declLines.pop();
+  const declBody = declLines.join('\n');
+  const escDeclBody = declBody.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const escDeclLast = declLast.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  declEl.innerHTML = declBody
+    ? `${escDeclBody}\n<span style="color:#C9A96E;font-style:italic;font-weight:400;">${escDeclLast}</span>`
+    : `<span style="color:#C9A96E;font-style:italic;font-weight:400;">${escDeclLast}</span>`;
   declEl.style.cssText = `
     font-family:'Cormorant Garamond',serif;
     font-size:${d.declFs}px;
